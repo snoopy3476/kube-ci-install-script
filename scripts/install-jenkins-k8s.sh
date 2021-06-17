@@ -2,8 +2,8 @@
 
 # Jenkins installation for k8s
 K8S_NAMESPACE="ci-jenkins"
-# k8s gitlab using local path provisioner (https://github.com/rancher/local-path-provisioner)
-PROVISIONER="local-path"
+# k8s jenkins using ceph provisioner (https://github.com/rook/rook.git)
+SC_NAME="rook-cephfs"
 JENKINSPVC="jenkins-pvc"
 NODE_PORT="30331"
 
@@ -123,18 +123,14 @@ if [ "$1" = "install" ]
 then
 
 	# check if defined provisioner is installed
-        kubectl get sc | grep "^$PROVISIONER " > /dev/null 2> /dev/null
+        kubectl get sc | grep "^$SC_NAME " > /dev/null 2> /dev/null
         if [ "$?" != "0" ]
         then
-                echo "Provisioner ($PROVISIONER) does not exist."
+                echo "Provisioner ($SC_NAME) does not exist."
                 echo "Continuing with default provisioner..."
-                echo
-                echo "If you want to use local path provisioner,"
-                echo "(https://github.com/rancher/local-path-provisioner)"
-                echo "do uninstall gitlab -> install local path provisioner -> reinstall gitlab"
         else
                 # set storageClass, if provisioner exists
-                JENKINS_YAML=$(echo "$JENKINS_YAML" | sed "s/storageClassName: ''/storageClassName: $PROVISIONER/g")
+                JENKINS_YAML=$(echo "$JENKINS_YAML" | sed "s/storageClassName: ''/storageClassName: $SC_NAME/g")
 	fi
 
 	# install

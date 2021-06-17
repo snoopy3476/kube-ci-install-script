@@ -3,8 +3,8 @@
 # GitLab installation for k8s
 TMP_YAMLFILE=".gitlab-values.yaml"
 K8S_NAMESPACE="ci-gitlab"
-# k8s gitlab using local path provisioner (https://github.com/rancher/local-path-provisioner)
-PROVISIONER="local-path"
+# k8s gitlab using ceph provisioner (https://github.com/rook/rook.git)
+SC_NAME="rook-cephfs"
 NODE_PORT="30330"
 
 
@@ -47,16 +47,12 @@ if [ "$1" = "install" ]
 then
 
 	# check if defined provisioner is installed
-	kubectl get sc | grep "^$PROVISIONER " > /dev/null 2> /dev/null
+	kubectl get sc | grep "^$SC_NAME " > /dev/null 2> /dev/null
 	if [ "$?" != "0" ]
 	then
-		echo "Provisioner ($PROVISIONER) does not exist."
+		echo "Provisioner ($SC_NAME) does not exist."
 		echo "Continuing with default provisioner..."
-		echo
-		echo "If you want to use local path provisioner,"
-		echo "(https://github.com/rancher/local-path-provisioner)"
-		echo "do uninstall gitlab -> install local path provisioner -> reinstall gitlab"
-		PROVISIONER="''"
+		SC_NAME=""
 	fi
 
 	# install
@@ -69,14 +65,14 @@ then
 		--set global.hosts.https=false \
 		--set global.edition=ce \
 		--set global.time_zone=Asia/Seoul \
-		--set global.storageClass="$PROVISIONER" \
-		--set gitlab.gitaly.persistence.storageClass="$PROVISIONER" \
+		--set global.storageClass="$SC_NAME" \
+		--set gitlab.gitaly.persistence.storageClass="$SC_NAME" \
 		--set gitlab-runner.install=false \
 		--set gitlab-runner.rbac.create=false \
 		--set certmanager-issuer.email=tmax_commonsystem@googlegroups.com \
 		--set certmanager.install=false \
-		--set prometheus.server.persistentVolume.storageClass="$PROVISIONER" \
-		--set minio.persistence.storageClass="$PROVISIONER" \
+		--set prometheus.server.persistentVolume.storageClass="$SC_NAME" \
+		--set minio.persistence.storageClass="$SC_NAME" \
 	&& echo "$GITLAB_SVC_YAML" | kubectl apply -n "$K8S_NAMESPACE" -f- \
 	&& echo -e \
 		"\n\n==========================="\
