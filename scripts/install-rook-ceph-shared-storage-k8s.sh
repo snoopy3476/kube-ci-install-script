@@ -102,6 +102,11 @@ then
 elif [ "$1" = "uninstall" ]
 then
 
+
+	kubectl -n rook-ceph patch cephcluster rook-ceph --type merge -p '{"spec":{"cleanupPolicy":{"confirmation":"yes-really-destroy-data"}}}'
+	kubectl -n rook-ceph delete cephcluster rook-ceph
+
+
 	# delete with yaml
 	kubectl delete -f "$YAML_BASE_URL"/csi/cephfs/storageclass.yaml
 	kubectl delete -f "$YAML_BASE_URL"/filesystem.yaml
@@ -111,15 +116,21 @@ then
 	kubectl delete -f "$YAML_BASE_URL"/common.yaml
 #	helm delete --namespace "$K8S_NAMESPACE" rook-ceph-cluster
 #	helm delete --namespace "$K8S_NAMESPACE" rock-ceph
-	kubectl delete ns "$K8S_NAMESPACE"
+#	kubectl delete ns "$K8S_NAMESPACE"
 
-	for CRD in $(kubectl get crd -n "$K8S_NAMESPACE" | awk '/ceph.rook.io/ {print $1}'); do
-		kubectl get -n "$K8S_NAMESPACE" "$CRD" -o name | \
-		xargs -I {} kubectl patch {} --type merge -p '{"metadata":{"finalizers": [null]}}'
-	done
+#	for CRD in $(kubectl get crd -n "$K8S_NAMESPACE" | awk '/ceph.rook.io/ {print $1}'); do
+#		kubectl get -n "$K8S_NAMESPACE" "$CRD" -o name | \
+#		xargs -I {} kubectl patch {} --type merge -p '{"metadata":{"finalizers": [null]}}'
+#	done
+
+#	helm template rock-ceph rook-release/rook-ceph --namespace "$K8S_NAMESPACE" | kubectl delete -f-
+
+
+
+#	kubectl delete podsecuritypolicies.policy 00-rook-privileged
 
 	echo "*** To finish rook ceph cleanup, You also need to delete /var/lib/rook on ALL K8S NODES! ***"
-	#helm template rock-ceph rook-release/rook-ceph --namespace "$K8S_NAMESPACE" | kubectl delete -f-
+
 	#exit $?
 
 # this should not be reached
