@@ -31,12 +31,12 @@ then
 fi && \
 
 
-# install and configure gitlab for k8s
-./scripts/install-gitlab-k8s.sh install && \
-
-
 # install and configure jenkins for k8s
-./scripts/install-jenkins-k8s.sh install
+./scripts/install-jenkins-k8s.sh install && \
+
+
+# install and configure gitlab for k8s
+./scripts/install-gitlab-k8s.sh install
 
 
 # return result code

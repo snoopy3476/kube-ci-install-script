@@ -80,8 +80,36 @@ then
 		"\n - ID: \e[31mroot\e[0m"\
 		"\n - PW: \e[30;41m$(kubectl -n $K8S_NAMESPACE get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode)\e[0m"\
 		"\n===========================\n\n"
+	EXIT_CODE=$?
 
-	exit $?
+
+	# watch for webservice running
+	if [ "$EXIT_CODE" -eq 0 ]
+	then
+	        echo | watch -e '
+
+	                PODLIST=$(kubectl get pod -n '"$K8S_NAMESPACE"')
+
+	                echo "$PODLIST"
+	                echo
+			echo
+	                echo " *** Waiting for Webservice running... *** "
+			echo
+	                echo " - This watch will exit automatically when a webservice is in running state."
+			echo " - If this does not exit for more than about 10 mins, something might be wrong."
+			echo "   You can exit from here by pressing following keys: \"Ctrl + C\""
+	                echo "$PODLIST" | tr -s " " | \
+	                        grep "^gitlab-webservice-default-" | \
+	                        grep " Running " > /dev/null 2> /dev/null
+
+        	        if [ $? -eq 0 ]
+	                then
+	                        exit 1
+	                fi
+	        '
+	fi
+
+	exit "$EXIT_CODE"
 
 
 # uninstall mode
