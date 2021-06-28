@@ -8,14 +8,15 @@
   - Without rook ceph (helm, gitlab-k8s, jenkins-k8s):
   `$ ./install-all.sh no-ceph`
   - With rook ceph (helm, rook-ceph-shared-storage-k8s, gitlab-k8s, jenkins-k8s):
-  `$ ./install-all.sh install-ceph`
+  `$ ./install-all.sh install-ceph <mon-counts>`
     - This script will install:
       - Helm on local machine (need root privilege)
       - (If install-ceph) Rook Ceph - Shared Storage for K8s (https://github.com/rook/rook), on the namespace 'rook-ceph'
       - GitLab for K8s, on the namespace 'ci-gitlab'
       - Jenkins for K8s, on the namespace 'ci-jenkins'
+    - <mon-counts> should be less than the worker node counts.
   - In case that you want to set default time zone for GitLab and Jenkins, define `$CI_TIMEZONE` by something like:
-  `$ CI_TIMEZONE='Asia/Seoul' ./install-all.sh install-ceph`
+  `$ CI_TIMEZONE='Asia/Seoul' ./install-all.sh install-ceph 3`
 - Install separately:
   `$ ./scripts/install-(util_name).sh install`
   - After installing GitLab and Jenkins, initial ID/PW will be printed on terminal.

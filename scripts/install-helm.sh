@@ -7,7 +7,7 @@ if [ "$#" != "1" ] || [ "$1" != "install" -a "$1" != "uninstall" ]
 then
         echo "usage: $0 <mode>"
         echo
-        echo "          <mode>: install | uninstall"
+        echo "          <mode>: [ install | uninstall ]"
         echo
         exit 1
 fi

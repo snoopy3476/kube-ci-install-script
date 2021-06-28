@@ -6,11 +6,16 @@
 
 
 # check arg
-if [ "$1" != "install-ceph" ] && [ "$1" != "no-ceph" ]
+if ! [ "$1" = "install-ceph" -a "$#" = "2" ] && ! [ "$1" = "no-ceph" -a "$#" = "1" ]
 then
         echo "usage: $0 <mode>"
 	echo
-	echo "          <mode>: install-ceph | no-ceph"
+	echo "          <mode>: [ install-ceph | no-ceph ]"
+	echo
+	echo "                  install-ceph <mon-counts>"
+	echo "                               ( <mon-counts> <= (worker node counts) )"
+	echo
+	echo "                  no-ceph"
 	echo
 	echo "                  * If you have no default dynamic provisioner on k8s,"
 	echo "                    then [install-ceph] mode is recommended."
@@ -28,7 +33,7 @@ fi
 # install rook ceph (shared storage), if argument install-ceph is given
 if [ "$1" = "install-ceph" ]
 then
-	./scripts/install-rook-ceph-shared-storage-k8s.sh install
+	./scripts/install-rook-ceph-shared-storage-k8s.sh install "$2"
 fi && \
 
 

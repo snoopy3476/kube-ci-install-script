@@ -8,11 +8,16 @@ YAML_BASE_URL="https://raw.githubusercontent.com/rook/rook/$GIT_BRANCH/cluster/e
 
 
 # check arg
-if [ "$#" != "1" ] || [ "$1" != "install" -a "$1" != "uninstall" ]
+if ! [ "$1" = "install" -a "$#" = "2" ] && ! [ "$1" = "uninstall" -a "$#" = "1" ]
 then
-	echo "usage: $0 <mode>"
+	echo "usage: $0 <mode> [args]"
 	echo
-	echo "          <mode>: install | uninstall"
+	echo "          <mode>: [ install | uninstall ]"
+	echo
+	echo "                  install <mon-counts>"
+	echo "                          ( <mon-counts> <= (worker node counts) )"
+	echo
+	echo "                  uninstall"
 	echo
 	exit 1
 fi
@@ -23,14 +28,37 @@ fi
 if [ "$1" = "install" ]
 then
 
+
+	# get mon counts. if less than 1 or NaN, then set to 1
+	MON_COUNTS="$2"
+	if ! [ "$2" -ge 1 ] 2> /dev/null
+	then
+		MON_COUNTS="1"
+	fi
+	MON_COUNTS_YAML="
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  mon:
+    count: $MON_COUNTS
+"
+
+
+
 	# install yaml
 	kubectl create -f "$YAML_BASE_URL"/common.yaml && \
 	kubectl create -f "$YAML_BASE_URL"/operator.yaml && \
 	kubectl create -f "$YAML_BASE_URL"/crds.yaml && \
 	kubectl create -f "$YAML_BASE_URL"/cluster.yaml && \
+	echo "$MON_COUNTS_YAML" | kubectl apply -f- && \
 	kubectl create -f "$YAML_BASE_URL"/filesystem.yaml && \
 	kubectl create -f "$YAML_BASE_URL"/csi/cephfs/storageclass.yaml
 	EXIT_CODE=$?
+
+
 
 	# watch for osd running
 	if [ "$EXIT_CODE" -eq 0 ]
@@ -57,6 +85,8 @@ then
 			fi
 		'
 	fi
+
+
 
 	exit "$EXIT_CODE"
 
