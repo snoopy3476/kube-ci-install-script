@@ -122,6 +122,7 @@ fi
 if [ "$1" = "install" ]
 then
 
+
 	# check if defined provisioner is installed
         kubectl get sc | grep "^$SC_NAME " > /dev/null 2> /dev/null
         if [ "$?" != "0" ]
@@ -133,6 +134,14 @@ then
                 JENKINS_YAML=$(echo "$JENKINS_YAML" | sed "s/storageClassName: ''/storageClassName: $SC_NAME/g")
 	fi
 
+
+	#Timezone settings - set to default if not defined
+	if [ -z "$JENKINS_TIMEZONE" ]
+	then
+		JENKINS_TIMEZONE="UTC"
+	fi
+
+
 	# install
 	kubectl create ns "$K8S_NAMESPACE"
 	echo "$JENKINS_YAML" | kubectl apply -f-
@@ -141,6 +150,7 @@ then
 	helm repo update
 	helm install jenkins -n "$K8S_NAMESPACE" jenkinsci/jenkins \
 		--set persistence.existingClaim="$JENKINSPVC" \
+		--set controller.javaOpts="-Duser.timezone=$JENKINS_TIMEZONE" \
 		--set controller.nodePort="$NODE_PORT" \
 		--set controller.serviceType=NodePort \
 		--set serviceAccount.create=false \

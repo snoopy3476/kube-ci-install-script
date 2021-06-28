@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # install helm on local system for prerequesites,
 # and then install rook-ceph, gitlab, and jenkins on k8s.
 
@@ -32,11 +33,11 @@ fi && \
 
 
 # install and configure jenkins for k8s
-./scripts/install-jenkins-k8s.sh install && \
+JENKINS_TIMEZONE=$CI_TIMEZONE ./scripts/install-jenkins-k8s.sh install && \
 
 
 # install and configure gitlab for k8s
-./scripts/install-gitlab-k8s.sh install
+GITLAB_TIMEZONE=$CI_TIMEZONE ./scripts/install-gitlab-k8s.sh install
 
 
 # return result code

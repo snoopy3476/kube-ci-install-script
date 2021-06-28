@@ -55,6 +55,14 @@ then
 		SC_NAME=""
 	fi
 
+
+	# Timezone settings - set to default if not defined
+	if [ -z "$GITLAB_TIMEZONE" ]
+	then
+		GITLAB_TIMEZONE="UTC"
+	fi
+
+
 	# install
 	kubectl create ns "$K8S_NAMESPACE"
 
@@ -64,7 +72,7 @@ then
 		--set global.hosts.externalIP=127.0.0.1 \
 		--set global.hosts.https=false \
 		--set global.edition=ce \
-		--set global.time_zone=Asia/Seoul \
+		--set global.time_zone="$GITLAB_TIMEZONE" \
 		--set global.storageClass="$SC_NAME" \
 		--set gitlab.gitaly.persistence.storageClass="$SC_NAME" \
 		--set gitlab-runner.install=false \
