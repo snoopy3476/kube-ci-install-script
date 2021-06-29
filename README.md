@@ -14,7 +14,7 @@
       - (If install-ceph) Rook Ceph - Shared Storage for K8s (https://github.com/rook/rook), on the namespace 'rook-ceph'
       - GitLab for K8s, on the namespace 'ci-gitlab'
       - Jenkins for K8s, on the namespace 'ci-jenkins'
-    - <mon-counts> should be less than the worker node counts.
+    - <mon-counts> should be less than or equal to the worker node counts, and should be an odd number.
   - In case that you want to set default time zone for GitLab and Jenkins, define `$CI_TIMEZONE` by something like:
   `$ CI_TIMEZONE='Asia/Seoul' ./install-all.sh install-ceph 3`
 - Install separately:

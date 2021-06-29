@@ -16,6 +16,7 @@ then
 	echo
 	echo "                  install <mon-counts>"
 	echo "                          ( <mon-counts> <= (worker node counts) )"
+	echo "                          ( <mon-counts> should be an odd number )"
 	echo
 	echo "                  uninstall"
 	echo

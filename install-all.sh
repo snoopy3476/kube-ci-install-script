@@ -14,6 +14,7 @@ then
 	echo
 	echo "                  install-ceph <mon-counts>"
 	echo "                               ( <mon-counts> <= (worker node counts) )"
+	echo "                               ( <mon-counts> should be an odd number )"
 	echo
 	echo "                  no-ceph"
 	echo
